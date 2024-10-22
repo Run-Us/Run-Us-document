@@ -1,0 +1,716 @@
+openapi: 3.1.0
+x-stoplight:
+  id: kmg65zfsf64u8
+info:
+  title: runus
+  version: 0.2.0
+  contact:
+    name: ""
+  license:
+    name: ""
+    identifier: MIT
+tags:
+  - name: me
+    description: 본인 키워드를 활용할 수 있는 엔드포인트
+  - name: 인증
+    description: 소셜로그인 등 인증과 관련된 엔드포인트
+  - name: 유저
+    description: 프로필 관리 등 유저와 관련된 엔드포인트
+  - name: 러닝세션
+    description: 러닝세션과 관련된 엔드포인트
+  - name: 러닝크루
+    description: 러닝크루와 관련된 엔드포인트
+  - name: 러닝크루/멤버
+    description: 러닝크루 내 멤버관리와 관련된 엔드포인트
+  - name: 러닝크루/가입요청
+    description: 러닝크루의 가입요청과 관련된 엔드포인트
+servers:
+  - url: "http://localhost:3000"
+    description: local
+paths:
+  /auth/login:
+    post:
+      summary: 로그인
+      tags:
+        - 인증
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+      operationId: login
+      x-stoplight:
+        id: vi4cyeikfbl7c
+      security: []
+      requestBody:
+        $ref: "#/components/requestBodies/Login"
+  /auth/signup:
+    post:
+      summary: 회원가입
+      tags:
+        - 인증
+      responses:
+        "201":
+          description: Created
+        "400":
+          description: Bad Request
+      operationId: signup
+      x-stoplight:
+        id: n38g59fs9ca06
+      security: []
+      requestBody:
+        $ref: "#/components/requestBodies/SignUp"
+  /auth/logout:
+    post:
+      summary: 로그아웃
+      tags:
+        - 인증
+      responses: {}
+      operationId: logout
+  /auth/refresh:
+    post:
+      summary: 액세스토큰 갱신
+      tags:
+        - 인증
+      responses: {}
+      operationId: token-refresh
+      x-stoplight:
+        id: 7tuud6fo4ygnd
+  "/users/{user-identifier}":
+    parameters:
+      - schema:
+          $ref: "#/components/schemas/v.userIdentifier"
+        in: path
+        required: true
+        name: user-identifier
+    get:
+      summary: 프로필 조회
+      tags:
+        - 유저
+      responses:
+        "200":
+          description: OK
+        "401":
+          $ref: "#/components/responses/GEH4001-Unauthorized"
+      x-stoplight:
+        id: hwvjko53wdbat
+  /users/me:
+    get:
+      summary: 내 프로필 조회
+      tags:
+        - me
+      description: |
+        > `/users/{user-identifier}`의 특수한 경우로, 로그인 된 사용자를 user-identifier로 사용합니다.
+      responses:
+        $ref: "#/paths/~1users~1{user-identifier}/get/responses"
+      operationId: getCurrentUserProfile
+    patch:
+      summary: 프로필 업데이트
+      tags:
+        - 유저
+      responses:
+        "200":
+          description: OK
+        "401":
+          $ref: "#/components/responses/GEH4001-Unauthorized"
+  "/users/{user-identifier}/stats":
+    parameters:
+      - schema:
+          $ref: "#/components/schemas/v.userIdentifier"
+        in: path
+        required: true
+        name: user-identifier
+    get:
+      summary: 유저 활동 통계 조회
+      tags:
+        - 유저
+      x-stoplight:
+        id: i34r1uhws6yy6
+      responses:
+        "200":
+          description: OK
+        "401":
+          $ref: "#/components/responses/GEH4001-Unauthorized"
+  /users/me/stats:
+    get:
+      summary: 내 활동 통계 조회
+      description: |
+        > `/users/{user-identifier}/stats`의 특수한 경우로, 로그인 된 사용자를 user-identifier로 사용합니다.
+      tags:
+        - me
+      responses:
+        $ref: "#/paths/~1users~1{user-identifier}~1stats/get/responses"
+  /users/oauth/connect:
+    post:
+      summary: OAuth 연동
+      tags:
+        - 유저
+      responses:
+        "201":
+          description: Created
+        "400":
+          description: Bad Request
+        "401":
+          $ref: "#/components/responses/GEH4001-Unauthorized"
+  /users/oauth/disconnect:
+    post:
+      summary: OAuth 연동 해제
+      tags:
+        - 유저
+      x-stoplight:
+        id: 5j6xeb3xwcoil
+      responses:
+        "204":
+          description: No Content
+        "401":
+          description: Unauthorized
+  /users/me/deactivate:
+    patch:
+      summary: 계정 비활성화
+      tags:
+        - 유저
+      responses: {}
+      operationId: patch-users-me-deactivate
+      x-stoplight:
+        id: z4vquprkf2szq
+  /runnings:
+    get:
+      summary: 러닝세션 목록 조회
+      tags:
+        - 러닝세션
+      parameters:
+        - schema:
+            $ref: "#/components/schemas/v.userIdentifier"
+          in: query
+          name: user
+      responses:
+        "200":
+          description: OK
+    post:
+      summary: 러닝세션 생성
+      tags:
+        - 러닝세션
+      responses:
+        "401":
+          $ref: "#/components/responses/GEH4001-Unauthorized"
+      operationId: post-runnings
+      x-stoplight:
+        id: k59wwhgetwdkp
+  /runnings?user=me:
+    get:
+      summary: 내 러닝세션 목록 조회
+      description: |
+        > `/runnings?user={user-identifier}`의 특수한 경우로, 로그인 된 사용자를 user-identifier로 사용합니다.
+      tags:
+        - me
+      responses:
+        $ref: "#/paths/~1runnings/get/responses"
+      operationId: get-runnings-me
+      x-stoplight:
+        id: w7w5op1ca5a5w
+  "/runnings/{passcode}/sessionId":
+    parameters:
+      - schema:
+          type: string
+          pattern: "^[A-Z0-9]{6}$"
+        name: passcode
+        in: path
+        required: true
+        description: 러닝세션 간편 접속용 임시 코드
+    get:
+      summary: 러닝세션 소켓 session id 조회
+      tags:
+        - 러닝세션
+  "/runnings/{runningPublicId}":
+    parameters:
+      - name: runningPublicId
+        in: path
+        required: true
+        description: 러닝세션 외부 노출용 고유 ID(TSID형식)
+        schema:
+          $ref: "#/components/schemas/v.publicID"
+    delete:
+      summary: 러닝세션 제거
+      tags:
+        - 러닝세션
+      responses:
+        "204":
+          description: 러닝세션의 제거가 성공적으로 이루어짐
+        "400":
+          description: 파라미터가 잘못됨
+        "401":
+          $ref: "#/components/responses/GEH4001-Unauthorized"
+        "403":
+          description: 요청자가 organizer가 아닌 러닝세션에 대한 요청 거부
+      operationId: delete-runnings-runningId
+      x-stoplight:
+        id: o2jshae9i9wol
+  "/runnings/{runningPublicId}/participants":
+    parameters:
+      - name: runningPublicId
+        in: path
+        required: true
+        description: 러닝세션 외부 노출용 고유 ID(TSID형식)
+        schema:
+          $ref: "#/components/schemas/v.publicID"
+    get:
+      summary: 러닝세션 참가자 조회
+      tags:
+        - 러닝세션
+  "/runnings/{runningPublicId}/records/{userPublicId}":
+    parameters:
+      - name: runningPublicId
+        in: path
+        required: true
+        description: 러닝세션 외부 노출용 고유 ID(TSID형식)
+        schema:
+          $ref: "#/components/schemas/v.publicID"
+      - name: userPublicId
+        in: path
+        required: true
+        description: 유저 외부 노출용 고유 ID(TSID형식)
+        schema:
+          $ref: "#/components/schemas/v.publicID"
+    get:
+      summary: 러닝세션 참가자의 기록 조회
+      tags:
+        - 러닝세션
+  /runnings/me/aggregates:
+    post:
+      summary: 러닝세션(솔로) 기록 저장
+      tags:
+        - 러닝세션
+  /crews:
+    get:
+      summary: 러닝크루 목록 조회
+      tags:
+        - 러닝크루
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+      operationId: list-crews
+      x-stoplight:
+        id: cmxo5z7ptvp33
+      security: []
+      parameters:
+        - schema:
+            type: integer
+            minimum: 0
+            default: 0
+          in: query
+          name: page
+          description: 요청 페이지
+        - schema:
+            type: integer
+            maximum: 50
+            default: 10
+            minimum: 1
+          in: query
+          name: limit
+          description: 한 요청에서 보여질 결과의 개수
+        - schema:
+            type: string
+            default: active
+            enum:
+              - active
+              - inactive
+              - deleted
+          in: query
+          name: status
+          description: 러닝크루 활성상태
+          allowEmptyValue: false
+    post:
+      summary: 러닝크루 생성
+      tags:
+        - 러닝크루
+      responses:
+        "201":
+          description: Created
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+      operationId: create-crew
+      x-stoplight:
+        id: w2zzvfh7s2hxn
+  "/crews/{crewPublicId}":
+    parameters:
+      - name: crewPublicId
+        in: path
+        required: true
+        description: 러닝크루 외부 노출용 고유 ID(TSID형식)
+        schema:
+          $ref: "#/components/schemas/v.publicID"
+    get:
+      summary: 러닝크루 세부정보 조회
+      tags:
+        - 러닝크루
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+      operationId: get-crew-details
+      x-stoplight:
+        id: mmabyop3hbp8r
+      security: []
+    patch:
+      summary: 러닝크루 정보 수정
+      tags:
+        - 러닝크루
+      responses: {}
+      operationId: update-crew
+      x-stoplight:
+        id: yar9ob2m4nggu
+    delete:
+      summary: 러닝크루 폐쇄
+      tags:
+        - 러닝크루
+      responses: {}
+      operationId: delete-crew
+      x-stoplight:
+        id: cfan885s887d6
+  "/crews/{crewPublicId}/join-requests":
+    parameters:
+      - name: crewPublicId
+        in: path
+        required: true
+        description: 러닝크루 외부 노출용 고유 ID(TSID형식)
+        schema:
+          $ref: "#/components/schemas/v.publicID"
+    get:
+      summary: 러닝크루 가입요청 목록 조회
+      tags:
+        - 러닝크루/가입요청
+      responses: {}
+      operationId: list-join-requests
+      x-stoplight:
+        id: nn4aej42gjerv
+    post:
+      summary: 러닝크루 가입요청
+      tags:
+        - 러닝크루/가입요청
+      responses: {}
+      operationId: create-join-request
+      x-stoplight:
+        id: 8gst9blnut18b
+    delete:
+      summary: 러닝크루 가입요청 취소
+      tags:
+        - 러닝크루/가입요청
+      responses: {}
+      operationId: cancel-join-request
+      x-stoplight:
+        id: g1hhy899wfjm6
+  "/crews/{crewPublicId}/join-requests/{joinRequestIndexId}":
+    parameters:
+      - name: crewPublicId
+        in: path
+        required: true
+        description: 러닝크루 외부 노출용 고유 ID(TSID형식)
+        schema:
+          $ref: "#/components/schemas/v.publicID"
+      - schema:
+          type: integer
+        name: joinRequestIndexId
+        in: path
+        required: true
+    put:
+      summary: 러닝크루 가입요청 처리
+      tags:
+        - 러닝크루/가입요청
+      responses: {}
+      operationId: process-join-request
+      x-stoplight:
+        id: xzwo8afqwp24c
+  "/crews/{crewPublicId}/members":
+    parameters:
+      - name: crewPublicId
+        in: path
+        required: true
+        description: 러닝크루 외부 노출용 고유 ID(TSID형식)
+        schema:
+          $ref: "#/components/schemas/v.publicID"
+    get:
+      summary: 러닝크루 전체 멤버 조회
+      tags:
+        - 러닝크루/멤버
+      responses: {}
+      operationId: list-crew-members
+      x-stoplight:
+        id: b4a4asl9b17sn
+    put:
+      summary: 러닝크루 멤버 목록 대량 업데이트
+      tags:
+        - 러닝크루/멤버
+      responses: {}
+      operationId: update-crew-members
+      x-stoplight:
+        id: fvq6x7jr7y3pk
+      x-internal: true
+  "/crews/{crewPublicId}/members/{userPublicId}":
+    parameters:
+      - name: crewPublicId
+        in: path
+        required: true
+        description: 러닝크루 외부 노출용 고유 ID(TSID형식)
+        schema:
+          $ref: "#/components/schemas/v.publicID"
+      - name: userPublicId
+        in: path
+        required: true
+        schema:
+          $ref: "#/components/schemas/v.publicID"
+    get:
+      summary: 러닝크루 내 멤버 세부정보 조회
+      tags:
+        - 러닝크루/멤버
+      responses: {}
+      operationId: get-crew-member-details
+      x-stoplight:
+        id: 4m2039i2ks1p5
+    put:
+      summary: 러닝크루 내 멤버 권한 수정
+      tags:
+        - 러닝크루/멤버
+      responses: {}
+      operationId: remove-crew-member
+      x-stoplight:
+        id: oggp2qwbl4v05
+    delete:
+      summary: 러닝크루 내 멤버 탈퇴처리
+      tags:
+        - 러닝크루/멤버
+      responses: {}
+      operationId: delete-crews-crewPublicId-members-userPublicId
+      x-stoplight:
+        id: dontdd32apwcd
+  "/crews/{crewPublicId}/stats":
+    parameters:
+      - name: crewPublicId
+        in: path
+        required: true
+        description: 러닝크루 외부 노출용 고유 ID(TSID형식)
+        schema:
+          $ref: "#/components/schemas/v.publicID"
+    get:
+      summary: 러닝크루 통계 조회
+      tags:
+        - 러닝크루
+      responses: {}
+      operationId: get-crew-stats
+      x-stoplight:
+        id: aq20m6oqc9f9r
+      security: []
+components:
+  schemas:
+    SocialCredentials:
+      title: 소셜로그인 인증 정보
+      description: 소셜로그인 인증 정보
+      x-stoplight:
+        id: 4f87f53199e9e
+      type: object
+      properties:
+        provider:
+          description: 인증 제공자
+          type: string
+          enum:
+            - KAKAO
+            - APPLE
+        token:
+          type: string
+          description: OIDC 토큰
+    User:
+      type: object
+      title: 유저
+      properties:
+        publicId:
+          $ref: "#/components/schemas/v.publicID"
+          description: 외부노출용 유저 고유 ID (TSID)
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    Profile:
+      title: 프로필
+      description: 프로필 전체 칼럼
+      type: object
+      allOf:
+        - $ref: "#/components/schemas/ProfileCommon"
+        - $ref: "#/components/schemas/ProfileAggregate"
+        - type: object
+          properties:
+            userId:
+              type: integer
+              description: 내부용 유저 고유 인덱스
+            updatedAt:
+              type: string
+              format: date-time
+              description: 프로필 업데이트 시점
+      x-stoplight:
+        id: 9969b360cf684
+    ProfileCommon:
+      type: object
+      title: 프로필 기본 항목
+      description: 프로필 항목 중 유저가 컨트롤 할 수 있는 칼럼
+      properties:
+        nickname:
+          type: string
+          minLength: 2
+          maxLength: 8
+          pattern: "^[가-힣a-zA-Z0-9]+$"
+          description: 유저 닉네임
+        imgUrl:
+          type: string
+          format: uri
+          nullable: true
+          description: 프로필 이미지 URL
+        birthDate:
+          type: string
+          format: date
+          nullable: true
+          description: 생년월일
+        gender:
+          type: string
+          enum:
+            - 남
+            - 여
+            - 기타
+          nullable: true
+          description: 성별
+        pace:
+          type: integer
+          nullable: true
+          description: 사용자가 지정하거나 서버가 주기적으로 계산한 1km 기준 평균 러닝 페이스 (밀리초)
+    ProfileAggregate:
+      type: object
+      x-stoplight:
+        id: b43ff5c0cb1d4
+      title: 프로필 집계 항목
+      description: 프로필 항목 중 서버가 계산한 통계 등 집계와 관련된 칼럼
+      properties:
+        totalDistance:
+          type: integer
+          description: 누적 달린 거리 (미터)
+        totalTime:
+          type: integer
+          description: 누적 달린 시간 (밀리초)
+        longestDistance:
+          type: integer
+          description: 최장 달린 거리 (미터)
+        longestTime:
+          type: integer
+          description: 최장 달린 시간 (밀리초)
+    Error:
+      title: 에러 응답형식
+      x-stoplight:
+        id: ks45q4lnzriya
+      type: object
+      properties:
+        error:
+          type: object
+          x-stoplight:
+            id: dz2i78902hm3j
+          required:
+            - code
+            - message
+          properties:
+            code:
+              type: string
+              x-stoplight:
+                id: k30sadh6mv79x
+              pattern: '^[A-Z]EH[45]\d{3}$'
+              readOnly: true
+            message:
+              type: string
+              x-stoplight:
+                id: ymxmm4ylu8bui
+              readOnly: true
+            content:
+              type: object
+              x-stoplight:
+                id: tf952c6lemdl9
+    v.publicID:
+      title: 변수.공개 ID
+      x-stoplight:
+        id: k82b8guki6nym
+      type: string
+      pattern: "^[A-Z0-9]{13}$"
+      description: TSID 형식 외부 노출용 고유ID 변수
+      example: 0HMZDWE8FE0FT
+    v.userIdentifier:
+      title: 변수.유저 식별자
+      x-stoplight:
+        id: scmtvp8bwqlk3
+      type: string
+      description: TSID 형식 외부 노출용 유저 고유ID 혹은 본인 지시자(me)
+      pattern: "^([A-Z0-9]{13}|me)$"
+      examples:
+        - 0HMZDWE8FE0FT
+        - me
+  securitySchemes:
+    authorization:
+      type: http
+      scheme: bearer
+  responses:
+    GEH4001-Unauthorized:
+      description: "인증 토큰이 없거나, 유효하지 않음"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+          example:
+            error:
+              code: GEH4001
+              message: "인증 토큰이 없거나, 유효하지 않습니다."
+    RSH2001-runnings-created:
+      description: 러닝세션 생성 성공
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              id:
+                type: string
+                default: RSH2001
+              message:
+                type: string
+                x-stoplight:
+                  id: 45ekyrai49y7p
+  requestBodies:
+    SignUp:
+      description: 회원가입 요청
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            description: 회원가입을 위한 정보
+            allOf:
+              - $ref: "#/components/schemas/SocialCredentials"
+              - $ref: "#/components/schemas/ProfileCommon"
+              - type: object
+                required:
+                  - nickname
+                  - provider
+                  - token
+    ProfileUpdate:
+      description: 프로필 업데이트 요청
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ProfileCommon"
+    Login:
+      content:
+        application/json:
+          schema:
+            type: object
+            $ref: "#/components/schemas/SocialCredentials"
+security:
+  - authorization: []
+x-internal: false
